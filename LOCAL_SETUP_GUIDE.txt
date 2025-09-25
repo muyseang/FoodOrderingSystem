@@ -1,0 +1,301 @@
+===============================================================================
+                    FOOD ORDERING SYSTEM - LOCAL SETUP GUIDE
+===============================================================================
+
+This guide will help you set up and run the Food Ordering System on your local machine.
+
+===============================================================================
+PREREQUISITES
+===============================================================================
+
+Before you begin, ensure you have the following installed on your machine:
+
+1. .NET 9.0 SDK or later
+   - Download from: https://dotnet.microsoft.com/download/dotnet/9.0
+   - Verify installation: dotnet --version
+
+2. SQL Server or SQL Server Express LocalDB
+   - For Windows: SQL Server Express (free)
+   - For macOS/Linux: SQL Server in Docker or Azure SQL Edge
+   - Alternative: Use SQLite (modify connection string)
+
+3. Visual Studio 2022, VS Code, or any C# compatible IDE
+   - Recommended: Visual Studio 2022 Community (free)
+   - Or VS Code with C# extension
+
+4. Git (if cloning from repository)
+   - Download from: https://git-scm.com/downloads
+
+===============================================================================
+STEP 1: GET THE PROJECT
+===============================================================================
+
+Option A: Clone from GitHub Repository
+--------------------------------------
+1. Open terminal/command prompt
+2. Navigate to your desired directory
+3. Run: git clone https://github.com/muyseang/FoodOrderingSystem.git
+4. Navigate to project: cd FoodOrderingSystem
+
+Option B: Download ZIP
+---------------------
+1. Download the project ZIP file
+2. Extract to your desired location
+3. Navigate to the extracted folder
+
+===============================================================================
+STEP 2: DATABASE SETUP
+===============================================================================
+
+1. Update Connection String (if needed)
+   ----------------------------------
+   - Open: FoodOrderingSystem/appsettings.json
+   - Locate "ConnectionStrings" section
+   - Default uses SQL Server LocalDB:
+     "Server=(localdb)\\mssqllocaldb;Database=FoodOrderingSystemDb;Trusted_Connection=true;MultipleActiveResultSets=true"
+   
+   For other databases, update accordingly:
+   - SQL Server: "Server=localhost;Database=FoodOrderingSystemDb;Integrated Security=true;"
+
+2. Apply Database Migrations
+   -------------------------
+   Open terminal in the project root directory and run:
+   
+   cd FoodOrderingSystem
+   dotnet ef database update
+
+   This will:
+   - Create the database
+   - Apply all migrations
+   - Seed initial data (admin user and sample food items)
+
+===============================================================================
+STEP 3: INSTALL DEPENDENCIES
+===============================================================================
+
+1. Restore NuGet Packages
+   ----------------------
+   In the project root directory, run:
+   
+   dotnet restore
+
+   This will download all required packages including:
+   - Entity Framework Core
+   - BCrypt for password hashing
+   - Bootstrap and jQuery libraries
+
+===============================================================================
+STEP 4: BUILD THE PROJECT
+===============================================================================
+
+1. Build the Solution
+   ------------------
+   In the project root directory, run:
+   
+   dotnet build
+
+   Ensure there are no build errors before proceeding.
+
+===============================================================================
+STEP 5: RUN THE APPLICATION
+===============================================================================
+
+1. Start the Application
+   ---------------------
+   In the FoodOrderingSystem project directory, run:
+   
+   cd FoodOrderingSystem
+   dotnet run
+
+2. Access the Application
+   ----------------------
+   - Open your web browser
+   - Navigate to: https://localhost:5211 or http://localhost:5210
+   - The application should load the home page
+
+===============================================================================
+DEFAULT LOGIN CREDENTIALS
+===============================================================================
+
+Admin Account:
+--------------
+Email: admin@example.com
+Password: Admin123!
+Role: Admin
+
+Test User Account:
+-----------------
+You can register a new user account through the registration page,
+or use the admin account to manage the system.
+
+===============================================================================
+APPLICATION FEATURES
+===============================================================================
+
+Customer Features:
+-----------------
+- User registration and login
+- Browse food menu by categories
+- Add items to cart (requires login)
+- View and modify cart
+- Checkout with demo payment methods
+- View order history
+- User profile management
+
+Admin Features:
+--------------
+- Admin dashboard
+- Manage food items (Create, Read, Update, Delete)
+- View all orders
+- User management
+
+Demo Payment Methods:
+--------------------
+- Credit/Debit Cards (demo)
+- PayPal (demo)
+- ABA Bank Cambodia Mobile Banking (demo)
+- Cash on Delivery
+
+===============================================================================
+TROUBLESHOOTING
+===============================================================================
+
+Common Issues and Solutions:
+
+1. Database Connection Errors
+   --------------------------
+   - Ensure SQL Server/LocalDB is running
+   - Check connection string in appsettings.json
+   - Try running: dotnet ef database update --force
+
+2. Port Already in Use
+   -------------------
+   - Check if another application is using port 5211
+   - Kill the process: lsof -ti:5211 | xargs kill -9 (macOS/Linux)
+   - Or use Task Manager to end the process (Windows)
+
+3. Build Errors
+   -------------
+   - Clean the solution: dotnet clean
+   - Restore packages: dotnet restore
+   - Rebuild: dotnet build
+
+4. Migration Issues
+   ----------------
+   - Drop database and recreate: dotnet ef database drop
+   - Apply migrations: dotnet ef database update
+
+5. Missing Entity Framework Tools
+   -----------------------------
+   Install EF Core tools globally:
+   dotnet tool install --global dotnet-ef
+
+===============================================================================
+PROJECT STRUCTURE
+===============================================================================
+
+FoodOrderingSystem/
+├── Data/                          # Database context and configurations
+├── Models/                        # Entity models (User, FoodItem, Order, etc.)
+├── Pages/                         # Razor Pages
+│   ├── Account/                   # Login, Register, Profile pages
+│   ├── Admin/                     # Admin dashboard and management
+│   ├── Cart/                      # Shopping cart functionality
+│   ├── Menu/                      # Food menu display
+│   └── Shared/                    # Shared layouts and partials
+├── wwwroot/                       # Static files (CSS, JS, images)
+├── Helpers/                       # Utility classes
+├── Migrations/                    # Database migrations
+└── Properties/                    # Launch settings
+
+===============================================================================
+DEVELOPMENT TIPS
+===============================================================================
+
+1. Hot Reload
+   ----------
+   Use: dotnet watch run
+   This enables automatic reload when you make changes to the code.
+
+2. Database Changes
+   ----------------
+   After modifying models, create new migration:
+   dotnet ef migrations add [MigrationName]
+   Then update database:
+   dotnet ef database update
+
+3. Debugging
+   ---------
+   - Use Visual Studio debugger for best experience
+   - Set breakpoints in code-behind files (.cshtml.cs)
+   - Use browser developer tools for frontend issues
+
+4. Environment Configuration
+   -------------------------
+   - Development settings: appsettings.Development.json
+   - Production settings: appsettings.json
+
+===============================================================================
+TESTING THE APPLICATION
+===============================================================================
+
+1. Registration Flow
+   -----------------
+   - Go to /Account/Register
+   - Create a new user account
+   - Verify login functionality
+
+2. Shopping Flow
+   -------------
+   - Browse menu at /Menu
+   - Add items to cart (must be logged in)
+   - View cart at /Cart
+   - Proceed to checkout
+
+3. Admin Functions
+   ---------------
+   - Login with admin credentials
+   - Access admin panel
+   - Manage food items and orders
+
+===============================================================================
+SUPPORT AND RESOURCES
+===============================================================================
+
+- ASP.NET Core Documentation: https://docs.microsoft.com/aspnet/core
+- Entity Framework Core: https://docs.microsoft.com/ef/core
+- Bootstrap Documentation: https://getbootstrap.com/docs
+
+For issues with this specific project, check:
+- README.md file in the project root
+- GitHub repository issues (if applicable)
+- Code comments in the source files
+
+===============================================================================
+VERSION INFORMATION
+===============================================================================
+
+- ASP.NET Core: 9.0
+- Entity Framework Core: 9.0
+- Bootstrap: 5.3
+- Target Framework: .NET 9.0
+- Database: SQL Server LocalDB (default)
+
+===============================================================================
+QUICK START SUMMARY
+===============================================================================
+
+For experienced developers, here's the quick setup:
+
+1. git clone [repository-url]
+2. cd FoodOrderingSystem/FoodOrderingSystem
+3. dotnet restore
+4. dotnet ef database update
+5. dotnet run
+6. Open https://localhost:5211
+7. Login with admin@example.com / Admin123!
+
+===============================================================================
+
+Last Updated: September 26, 2025
+Version: 1.0
