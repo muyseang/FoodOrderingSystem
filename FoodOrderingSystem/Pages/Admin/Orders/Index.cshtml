@@ -1,0 +1,44 @@
+﻿@page
+@model FoodOrderingSystem.Pages.Admin.Orders.IndexModel
+<h2>Order Management</h2>
+
+<form method="get">
+    <label>Filter by Payment Status:</label>
+    <select asp-for="PaymentStatus">
+        <option value="">All</option>
+        <option value="Paid">Paid</option>
+        <option value="Unpaid">Unpaid</option>
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model.Orders)
+        {
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.Customer.Username</td>
+                <td>@order.OrderDate</td>
+                <td>@order.TotalAmount</td>
+                <td>@order.Status</td>
+                <td>@order.PaymentStatus</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@order.Id">Update Status</a>
+                    <a asp-page="Details" asp-route-id="@order.Id">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

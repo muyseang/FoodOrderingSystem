@@ -1,0 +1,453 @@
+﻿@page
+@model FoodOrderingSystem.Pages.Admin.FoodItems.IndexModel
+@{
+    ViewData["Title"] = "Food Items Management";
+}
+
+<div class="admin-container">
+    <!-- Admin Header -->
+    <div class="admin-header mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+            <div class="mb-3 mb-md-0">
+                <h1 class="display-6 fw-bold text-dark mb-2">
+                    <i class="fas fa-utensils me-3 text-primary"></i>Food Items Management
+                </h1>
+                <p class="text-muted mb-0">Manage your restaurant's menu items and pricing</p>
+            </div>
+            <div class="admin-actions d-flex gap-2">
+                <a asp-page="Create" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus me-2"></i>Add New Item
+                </a>
+                <button class="btn btn-outline-primary btn-lg" onclick="exportData()">
+                    <i class="fas fa-download me-2"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card bg-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-hamburger"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@Model.FoodItems.Count</h3>
+                    <p class="stat-label">Total Items</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card bg-success">
+                <div class="stat-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@Model.FoodItems.Select(f => f.Category).Distinct().Count()</h3>
+                    <p class="stat-label">Categories</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card bg-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">$@(Model.FoodItems.Any() ? Model.FoodItems.Average(f => f.Price).ToString("F2") : "0.00")</h3>
+                    <p class="stat-label">Avg Price</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card bg-info">
+                <div class="stat-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">$@(Model.FoodItems.Any() ? Model.FoodItems.Max(f => f.Price).ToString("F2") : "0.00")</h3>
+                    <p class="stat-label">Highest Price</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="admin-filters-card mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="row align-items-end">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-search me-2 text-primary"></i>Search Items
+                        </label>
+                        <input type="text" class="form-control form-control-lg" id="searchInput" 
+                               placeholder="Search by name or description...">
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-filter me-2 text-primary"></i>Category Filter
+                        </label>
+                        <select class="form-select form-select-lg" id="categoryFilter">
+                            <option value="">All Categories</option>
+                            @foreach (var category in Model.FoodItems.Select(f => f.Category).Distinct().Where(c => !string.IsNullOrEmpty(c)))
+                            {
+                                <option value="@category">@category</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-sort-amount-down me-2 text-primary"></i>Sort By
+                        </label>
+                        <select class="form-select form-select-lg" id="sortBy">
+                            <option value="name">Name (A-Z)</option>
+                            <option value="name-desc">Name (Z-A)</option>
+                            <option value="price">Price (Low to High)</option>
+                            <option value="price-desc">Price (High to Low)</option>
+                            <option value="category">Category</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary btn-lg w-100" onclick="clearFilters()">
+                            <i class="fas fa-times me-2"></i>Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Food Items Table -->
+    <div class="admin-table-card">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-table me-2 text-primary"></i>Food Items List
+                    </h5>
+                    <div class="table-info">
+                        <span class="badge bg-light text-dark" id="resultsCount">
+                            @Model.FoodItems.Count items
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.FoodItems.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="foodItemsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="px-4 py-3 fw-bold">
+                                        <i class="fas fa-image me-2 text-muted"></i>Item
+                                    </th>
+                                    <th class="px-4 py-3 fw-bold">
+                                        <i class="fas fa-tag me-2 text-muted"></i>Category
+                                    </th>
+                                    <th class="px-4 py-3 fw-bold">
+                                        <i class="fas fa-info-circle me-2 text-muted"></i>Description
+                                    </th>
+                                    <th class="px-4 py-3 fw-bold">
+                                        <i class="fas fa-dollar-sign me-2 text-muted"></i>Price
+                                    </th>
+                                    <th class="px-4 py-3 fw-bold text-center">
+                                        <i class="fas fa-cogs me-2 text-muted"></i>Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                @foreach (var item in Model.FoodItems)
+                                {
+                                    <tr class="food-item-row" data-name="@item.Name.ToLower()" data-category="@item.Category" data-price="@item.Price">
+                                        <td class="px-4 py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="food-item-avatar me-3 position-relative">
+                                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                                    {
+                                                        <img src="@item.ImageUrl" 
+                                                             alt="@item.Name" 
+                                                             class="food-avatar-img rounded-circle"
+                                                             style="width: 50px; height: 50px; object-fit: cover;"
+                                                             loading="lazy"
+                                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    }
+                                                    <div class="food-avatar-fallback rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                                                         style="width: 50px; height: 50px; @(string.IsNullOrEmpty(item.ImageUrl) ? "" : "display: none; position: absolute; top: 0; left: 0;")">
+                                                        <i class="fas fa-utensils text-muted"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1 fw-bold">@item.Name</h6>
+                                                    <small class="text-muted">ID: @item.Id</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            @if (!string.IsNullOrEmpty(item.Category))
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary">@item.Category</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">No Category</span>
+                                            }
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            @if (!string.IsNullOrEmpty(item.Description))
+                                            {
+                                                <span class="description-text">@item.Description</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">No description</span>
+                                            }
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="price-tag">$@item.Price.ToString("F2")</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <div class="btn-group" role="group">
+                                                <a asp-page="Details" asp-route-id="@item.Id" 
+                                                   class="btn btn-outline-info btn-sm" 
+                                                   data-bs-toggle="tooltip" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a asp-page="Edit" asp-route-id="@item.Id" 
+                                                   class="btn btn-outline-warning btn-sm"
+                                                   data-bs-toggle="tooltip" title="Edit Item">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button onclick="confirmDelete(@item.Id, '@item.Name')" 
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        data-bs-toggle="tooltip" title="Delete Item">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state text-center py-5">
+                        <i class="fas fa-utensils text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                        <h4 class="mt-3 text-muted">No Food Items Found</h4>
+                        <p class="text-muted mb-4">Get started by adding your first menu item</p>
+                        <a asp-page="Create" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus me-2"></i>Add Your First Item
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- No Results Message (Hidden by default) -->
+    <div id="noResults" class="text-center py-5" style="display: none;">
+        <i class="fas fa-search text-muted" style="font-size: 4rem;"></i>
+        <h3 class="mt-3 text-muted">No items found</h3>
+        <p class="text-muted">Try adjusting your search or filter criteria</p>
+        <button class="btn btn-outline-primary" onclick="clearFilters()">
+            <i class="fas fa-times me-2"></i>Clear Filters
+        </button>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Are you sure you want to delete this food item?</p>
+                <div class="alert alert-warning">
+                    <strong id="deleteItemName"></strong> will be permanently removed from your menu.
+                </div>
+                <p class="text-muted small mb-0">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Delete Item
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Filter functionality
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const sortBy = document.getElementById('sortBy');
+
+            searchInput.addEventListener('input', filterAndSort);
+            categoryFilter.addEventListener('change', filterAndSort);
+            sortBy.addEventListener('change', filterAndSort);
+        });
+
+        function filterAndSort() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCategory = document.getElementById('categoryFilter').value;
+            const sortValue = document.getElementById('sortBy').value;
+            const rows = Array.from(document.querySelectorAll('.food-item-row'));
+
+            // Filter rows
+            let visibleRows = rows.filter(row => {
+                const name = row.getAttribute('data-name');
+                const category = row.getAttribute('data-category');
+                const description = row.querySelector('.description-text')?.textContent.toLowerCase() || '';
+
+                const matchesSearch = name.includes(searchTerm) || description.includes(searchTerm);
+                const matchesCategory = selectedCategory === '' || category === selectedCategory;
+
+                return matchesSearch && matchesCategory;
+            });
+
+            // Sort rows
+            visibleRows.sort((a, b) => {
+                const aName = a.querySelector('h6').textContent;
+                const bName = b.querySelector('h6').textContent;
+                const aPrice = parseFloat(a.getAttribute('data-price'));
+                const bPrice = parseFloat(b.getAttribute('data-price'));
+                const aCategory = a.getAttribute('data-category') || '';
+                const bCategory = b.getAttribute('data-category') || '';
+
+                switch(sortValue) {
+                    case 'name-desc':
+                        return bName.localeCompare(aName);
+                    case 'price':
+                        return aPrice - bPrice;
+                    case 'price-desc':
+                        return bPrice - aPrice;
+                    case 'category':
+                        return aCategory.localeCompare(bCategory) || aName.localeCompare(bName);
+                    default: // name
+                        return aName.localeCompare(bName);
+                }
+            });
+
+            // Update display
+            const tbody = document.getElementById('tableBody');
+            const noResults = document.getElementById('noResults');
+            const resultsCount = document.getElementById('resultsCount');
+            const table = document.getElementById('foodItemsTable');
+
+            // Hide all rows
+            rows.forEach(row => row.style.display = 'none');
+
+            if (visibleRows.length === 0) {
+                noResults.style.display = 'block';
+                table.parentElement.style.display = 'none';
+            } else {
+                noResults.style.display = 'none';
+                table.parentElement.style.display = 'block';
+
+                // Show and reorder visible rows
+                visibleRows.forEach((row, index) => {
+                    row.style.display = '';
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Update results count
+            resultsCount.textContent = `${visibleRows.length} items`;
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('sortBy').value = 'name';
+            filterAndSort();
+        }
+
+        function confirmDelete(itemId, itemName) {
+            document.getElementById('deleteItemName').textContent = itemName;
+            document.getElementById('confirmDeleteBtn').href = `/Admin/FoodItems/Delete/${itemId}`;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        function exportData() {
+            // Simple CSV export functionality
+            const rows = document.querySelectorAll('.food-item-row:not([style*="display: none"])');
+            let csv = 'Name,Category,Description,Price\n';
+
+            rows.forEach(row => {
+                const name = row.querySelector('h6').textContent;
+                const category = row.getAttribute('data-category') || '';
+                const description = row.querySelector('.description-text')?.textContent || '';
+                const price = row.getAttribute('data-price');
+
+                csv += `"${name}","${category}","${description}","${price}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'food-items.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            // Show success message
+            showToast('Food items exported successfully!', 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-success' : 'bg-danger';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+
+            toast.className = `toast align-items-center text-white ${bgColor} border-0 position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 1050;';
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${icon} me-2"></i>${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            toast.addEventListener('hidden.bs.toast', () => {
+                document.body.removeChild(toast);
+            });
+        }
+
+        // Row hover effects
+        document.querySelectorAll('.food-item-row').forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.01)';
+                this.style.transition = 'transform 0.2s ease';
+            });
+
+            row.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+}

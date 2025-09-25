@@ -1,0 +1,101 @@
+@page "{id:int}"
+@model FoodOrderingSystem.Pages.Admin.FoodItems.EditModel
+@{
+    ViewData["Title"] = "Edit Food Item";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Edit Food Item
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="FoodItem.Id" />
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FoodItem.Name" class="form-label fw-semibold">
+                                    <i class="fas fa-tag me-2 text-primary"></i>Item Name
+                                </label>
+                                <input asp-for="FoodItem.Name" class="form-control form-control-lg" placeholder="Enter item name" />
+                                <span asp-validation-for="FoodItem.Name" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FoodItem.Category" class="form-label fw-semibold">
+                                    <i class="fas fa-list me-2 text-primary"></i>Category
+                                </label>
+                                <select asp-for="FoodItem.Category" class="form-select form-select-lg">
+                                    <option value="">Select Category</option>
+                                    <option value="Burgers">Burgers</option>
+                                    <option value="Pizza">Pizza</option>
+                                    <option value="Salads">Salads</option>
+                                    <option value="Main Courses">Main Courses</option>
+                                    <option value="Appetizers">Appetizers</option>
+                                    <option value="Desserts">Desserts</option>
+                                    <option value="Beverages">Beverages</option>
+                                </select>
+                                <span asp-validation-for="FoodItem.Category" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FoodItem.ImageUrl" class="form-label fw-semibold">
+                                    <i class="fas fa-image me-2 text-primary"></i>Image URL
+                                </label>
+                                <input asp-for="FoodItem.ImageUrl" class="form-control form-control-lg" 
+                                       placeholder="https://example.com/image.jpg" />
+                                <span asp-validation-for="FoodItem.ImageUrl" class="text-danger"></span>
+                                <div class="form-text">Enter a valid image URL for the food item</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="FoodItem.Description" class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-2 text-primary"></i>Description
+                            </label>
+                            <textarea asp-for="FoodItem.Description" class="form-control" rows="4" 
+                                      placeholder="Describe your delicious food item..."></textarea>
+                            <span asp-validation-for="FoodItem.Description" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label asp-for="FoodItem.Price" class="form-label fw-semibold">
+                                <i class="fas fa-dollar-sign me-2 text-primary"></i>Price
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="FoodItem.Price" type="number" step="0.01" class="form-control" 
+                                       placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="FoodItem.Price" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="fas fa-save me-2"></i>Update Item
+                            </button>
+                            <a asp-page="Details" asp-route-id="@Model.FoodItem.Id" class="btn btn-info btn-lg">
+                                <i class="fas fa-eye me-2"></i>View Details
+                            </a>
+                            <a asp-page="Index" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

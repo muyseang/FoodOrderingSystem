@@ -1,0 +1,222 @@
+@page
+@model FoodOrderingSystem.Pages.Account.ProfileModel
+
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Profile Header -->
+            <div class="profile-header text-center mb-4">
+                <div class="profile-avatar-wrapper mb-3">
+                    <div class="profile-avatar bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                <h2 class="mb-1">@Model.CurrentUser.Username</h2>
+                <p class="text-muted mb-0">
+                    <span class="badge @(Model.CurrentUser.Role == "Admin" ? "bg-danger" : "bg-primary") fs-6">
+                        <i class="fas @(Model.CurrentUser.Role == "Admin" ? "fa-crown" : "fa-user") me-1"></i>
+                        @Model.CurrentUser.Role
+                    </span>
+                </p>
+            </div>
+
+            <!-- Profile Form -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-edit me-2 text-primary"></i>
+                        Update Profile Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            @Model.SuccessMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            @Model.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form method="post">
+                        <div class="row">
+                            <!-- Account Information Section -->
+                            <div class="col-12">
+                                <h6 class="text-muted mb-3 border-bottom pb-2">
+                                    <i class="fas fa-user-circle me-2"></i>Account Information
+                                </h6>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CurrentUser.Username" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-1 text-primary"></i>Username
+                                </label>
+                                <input asp-for="CurrentUser.Username" class="form-control" placeholder="Enter username" />
+                                <span asp-validation-for="CurrentUser.Username" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-shield-alt me-1 text-info"></i>Role
+                                </label>
+                                <input type="text" class="form-control" value="@Model.CurrentUser.Role" readonly />
+                                <small class="form-text text-muted">Account role cannot be changed</small>
+                            </div>
+
+                            <!-- Password Change Section -->
+                            <div class="col-12 mt-4">
+                                <h6 class="text-muted mb-3 border-bottom pb-2">
+                                    <i class="fas fa-lock me-2"></i>Change Password (Optional)
+                                </h6>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NewPassword" class="form-label fw-semibold">
+                                    <i class="fas fa-key me-1 text-warning"></i>New Password
+                                </label>
+                                <input asp-for="NewPassword" type="password" class="form-control" placeholder="Leave blank to keep current" />
+                                <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                                <small class="form-text text-muted">Minimum 6 characters</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ConfirmPassword" class="form-label fw-semibold">
+                                    <i class="fas fa-check-double me-1 text-warning"></i>Confirm Password
+                                </label>
+                                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm new password" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2 pt-4 border-top">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-1"></i>Update Profile
+                            </button>
+                            <a href="/" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-home me-1"></i>Back to Home
+                            </a>
+                            @if (Model.CurrentUser.Role == "Admin")
+                            {
+                                <a asp-page="/Admin/FoodItems/Index" class="btn btn-outline-info px-4">
+                                    <i class="fas fa-cogs me-1"></i>Admin Panel
+                                </a>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Statistics (Optional) -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="stat-card bg-light p-3 rounded text-center">
+                        <i class="fas fa-calendar-alt text-primary mb-2" style="font-size: 2rem;"></i>
+                        <h6 class="mb-1">Member Since</h6>
+                        <p class="text-muted mb-0">Account ID: @Model.CurrentUser.Id</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stat-card bg-light p-3 rounded text-center">
+                        <i class="fas fa-user-shield text-success mb-2" style="font-size: 2rem;"></i>
+                        <h6 class="mb-1">Account Type</h6>
+                        <p class="text-muted mb-0">@Model.CurrentUser.Role User</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-avatar {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 4px solid #fff;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1.5px solid #e1e5e9;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+}
+
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    padding: 1rem 1.5rem;
+}
+
+.badge {
+    padding: 0.5rem 1rem;
+}
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Password confirmation validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const newPassword = document.querySelector('input[name="NewPassword"]');
+            const confirmPassword = document.querySelector('input[name="ConfirmPassword"]');
+            
+            function validatePasswordMatch() {
+                if (newPassword.value && confirmPassword.value) {
+                    if (newPassword.value !== confirmPassword.value) {
+                        confirmPassword.setCustomValidity('Passwords do not match');
+                    } else {
+                        confirmPassword.setCustomValidity('');
+                    }
+                }
+            }
+            
+            newPassword?.addEventListener('input', validatePasswordMatch);
+            confirmPassword?.addEventListener('input', validatePasswordMatch);
+        });
+    </script>
+}

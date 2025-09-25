@@ -1,0 +1,252 @@
+﻿@page
+@model FoodOrderingSystem.Pages.Admin.FoodItems.CreateModel
+
+@{
+    ViewData["Title"] = "Create New Food Item";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-1 text-gray-800">
+                <i class="fas fa-plus-circle text-primary me-2"></i>
+                Create New Food Item
+            </h1>
+            <p class="text-muted mb-0">Add a new item to your menu</p>
+        </div>
+        <a asp-page="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to List
+        </a>
+    </div>
+
+    <!-- Create Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-utensils me-2"></i>
+                        Food Item Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger d-none" role="alert"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FoodItem.Name" class="form-label fw-semibold">
+                                    <i class="fas fa-tag text-primary me-1"></i>
+                                    Item Name
+                                </label>
+                                <input asp-for="FoodItem.Name" class="form-control" placeholder="Enter food item name" />
+                                <span asp-validation-for="FoodItem.Name" class="text-danger small"></span>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FoodItem.Price" class="form-label fw-semibold">
+                                    <i class="fas fa-dollar-sign text-success me-1"></i>
+                                    Price
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="FoodItem.Price" class="form-control" placeholder="0.00" step="0.01" />
+                                </div>
+                                <span asp-validation-for="FoodItem.Price" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FoodItem.Category" class="form-label fw-semibold">
+                                    <i class="fas fa-list text-info me-1"></i>
+                                    Category
+                                </label>
+                                <select asp-for="FoodItem.Category" class="form-select">
+                                    <option value="">Select Category</option>
+                                    <option value="Appetizers">🥗 Appetizers</option>
+                                    <option value="Main Courses">🍽️ Main Courses</option>
+                                    <option value="Desserts">🍰 Desserts</option>
+                                    <option value="Burgers">🍔 Burgers</option>
+                                    <option value="Pizza">🍕 Pizza</option>
+                                    <option value="Salads">🥙 Salads</option>
+                                </select>
+                                <span asp-validation-for="FoodItem.Category" class="text-danger small"></span>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FoodItem.ImageUrl" class="form-label fw-semibold">
+                                    <i class="fas fa-image text-warning me-1"></i>
+                                    Image URL
+                                </label>
+                                <input asp-for="FoodItem.ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                                <span asp-validation-for="FoodItem.ImageUrl" class="text-danger small"></span>
+                                <div class="form-text">Enter a valid image URL for the food item</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="FoodItem.Description" class="form-label fw-semibold">
+                                <i class="fas fa-align-left text-secondary me-1"></i>
+                                Description
+                            </label>
+                            <textarea asp-for="FoodItem.Description" class="form-control" rows="4" 
+                                     placeholder="Enter a detailed description of the food item..."></textarea>
+                            <span asp-validation-for="FoodItem.Description" class="text-danger small"></span>
+                            <div class="form-text">Provide an appetizing description that will entice customers</div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-1"></i>
+                                Create Item
+                            </button>
+                            <a asp-page="Index" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-times me-1"></i>
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Preview (Optional Enhancement) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageUrlInput = document.querySelector('input[name="FoodItem.ImageUrl"]');
+    
+    if (imageUrlInput) {
+        imageUrlInput.addEventListener('blur', function() {
+            if (this.value && this.value.match(/\.(jpeg|jpg|gif|png)$/)) {
+                // Could add image preview functionality here
+                console.log('Valid image URL detected');
+            }
+        });
+    }
+    
+    // Form validation enhancement
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const validationSummary = document.querySelector('[asp-validation-summary]');
+        const errors = document.querySelectorAll('.text-danger:not(:empty)');
+        
+        if (errors.length > 0) {
+            validationSummary.classList.remove('d-none');
+            validationSummary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+});
+</script>
+
+<style>
+.card {
+    border: none;
+    border-radius: 12px;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    border: none;
+    padding: 1.25rem 1.5rem;
+}
+
+.form-label {
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input-group-text {
+    background-color: #f8fafc;
+    border: 1.5px solid #e5e7eb;
+    border-right: none;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border: none;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-outline-secondary {
+    border: 1.5px solid #e5e7eb;
+    color: #6b7280;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8fafc;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.alert-danger {
+    border-radius: 8px;
+    border: none;
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-left: 4px solid #dc2626;
+}
+
+/* Animation for form elements */
+.form-control, .form-select, .btn {
+    animation: slideInUp 0.3s ease;
+}
+
+@@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

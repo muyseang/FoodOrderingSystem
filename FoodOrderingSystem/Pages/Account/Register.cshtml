@@ -1,0 +1,296 @@
+﻿@page
+@model FoodOrderingSystem.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="auth-container">
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            <!-- Left Side - Branding/Info -->
+            <div class="col-lg-6 d-none d-lg-flex auth-brand-side">
+                <div class="d-flex flex-column justify-content-center align-items-center text-white p-5">
+                    <div class="text-center mb-5">
+                        <i class="fas fa-utensils display-1 mb-4"></i>
+                        <h1 class="display-4 fw-bold mb-3">Welcome to Our Restaurant</h1>
+                        <p class="lead mb-4">Join thousands of food lovers and discover amazing meals delivered to your door</p>
+                        <div class="row text-center mt-5">
+                            <div class="col-4">
+                                <i class="fas fa-shipping-fast fa-2x mb-2"></i>
+                                <p class="small">Fast Delivery</p>
+                            </div>
+                            <div class="col-4">
+                                <i class="fas fa-star fa-2x mb-2"></i>
+                                <p class="small">Top Quality</p>
+                            </div>
+                            <div class="col-4">
+                                <i class="fas fa-heart fa-2x mb-2"></i>
+                                <p class="small">Made with Love</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Registration Form -->
+            <div class="col-lg-6 d-flex align-items-center">
+                <div class="w-100 px-4 px-lg-5">
+                    <div class="auth-form-container">
+                        <!-- Header -->
+                        <div class="text-center mb-5">
+                            <h2 class="fw-bold text-dark mb-2">Create Your Account</h2>
+                            <p class="text-muted">Join us and start your culinary journey today</p>
+                        </div>
+
+                        <!-- Registration Form -->
+                        <form method="post" id="registerForm" novalidate>
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" id="validationSummary"></div>
+
+                            <!-- Username Field -->
+                            <div class="form-group mb-4">
+                                <label asp-for="User.Username" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-primary"></i>Username
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-at text-muted"></i>
+                                    </span>
+                                    <input asp-for="User.Username" class="form-control form-control-lg" 
+                                           placeholder="Choose a unique username" required />
+                                </div>
+                                <span asp-validation-for="User.Username" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Email Field -->
+                            <div class="form-group mb-4">
+                                <label asp-for="User.Email" class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>Email Address
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-mail-bulk text-muted"></i>
+                                    </span>
+                                    <input asp-for="User.Email" type="email" class="form-control form-control-lg" 
+                                           placeholder="your.email@example.com" required />
+                                </div>
+                                <span asp-validation-for="User.Email" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Password Field -->
+                            <div class="form-group mb-4">
+                                <label asp-for="User.Password" class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-2 text-primary"></i>Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-key text-muted"></i>
+                                    </span>
+                                    <input asp-for="User.Password" type="password" class="form-control form-control-lg" 
+                                           id="password" placeholder="Create a strong password" required />
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="fas fa-eye" id="eyeIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength mt-2">
+                                    <div class="progress" style="height: 4px;">
+                                        <div class="progress-bar" id="passwordStrengthBar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <small class="text-muted" id="passwordStrengthText">Password strength</small>
+                                </div>
+                                <span asp-validation-for="User.Password" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Confirm Password Field -->
+                            <div class="form-group mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-check-double me-2 text-primary"></i>Confirm Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-shield-alt text-muted"></i>
+                                    </span>
+                                    <input type="password" class="form-control form-control-lg" 
+                                           id="confirmPassword" placeholder="Confirm your password" required />
+                                </div>
+                                <span class="text-danger small" id="confirmPasswordError"></span>
+                            </div>
+
+                            <!-- Role Selection -->
+                            <div class="form-group mb-4">
+                                <label asp-for="User.Role" class="form-label fw-semibold">
+                                    <i class="fas fa-user-tag me-2 text-primary"></i>Account Type
+                                </label>
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <input type="radio" class="btn-check" name="User.Role" id="roleCustomer" value="Customer" checked>
+                                        <label class="btn btn-outline-primary w-100 py-3" for="roleCustomer">
+                                            <i class="fas fa-user-circle d-block mb-2"></i>
+                                            <strong>Customer</strong>
+                                            <small class="d-block text-muted">Order delicious food</small>
+                                        </label>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="radio" class="btn-check" name="User.Role" id="roleAdmin" value="Admin">
+                                        <label class="btn btn-outline-warning w-100 py-3" for="roleAdmin">
+                                            <i class="fas fa-user-shield d-block mb-2"></i>
+                                            <strong>Admin</strong>
+                                            <small class="d-block text-muted">Manage restaurant</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="User.Role" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Terms and Conditions -->
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    I agree to the <a href="#" class="text-primary">Terms of Service</a> and 
+                                    <a href="#" class="text-primary">Privacy Policy</a>
+                                </label>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid mb-4">
+                                <button type="submit" class="btn btn-primary btn-lg py-3" id="submitBtn">
+                                    <i class="fas fa-user-plus me-2"></i>Create Account
+                                    <span class="spinner-border spinner-border-sm ms-2 d-none" id="submitSpinner"></span>
+                                </button>
+                            </div>
+
+                            <!-- Login Link -->
+                            <div class="text-center">
+                                <p class="text-muted">
+                                    Already have an account? 
+                                    <a asp-page="/Account/Login" class="text-primary fw-semibold text-decoration-none">
+                                        Sign in here
+                                    </a>
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const strengthText = document.getElementById('passwordStrengthText');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const submitBtn = document.getElementById('submitBtn');
+            const submitSpinner = document.getElementById('submitSpinner');
+            const form = document.getElementById('registerForm');
+
+            // Toggle password visibility
+            togglePasswordBtn.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+
+            // Password strength checker
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                const strength = calculatePasswordStrength(password);
+                updatePasswordStrengthUI(strength);
+            });
+
+            // Confirm password validation
+            confirmPasswordInput.addEventListener('input', validatePasswordConfirmation);
+            passwordInput.addEventListener('input', validatePasswordConfirmation);
+
+            function calculatePasswordStrength(password) {
+                let score = 0;
+                if (password.length >= 8) score += 25;
+                if (/[a-z]/.test(password)) score += 25;
+                if (/[A-Z]/.test(password)) score += 25;
+                if (/[0-9]/.test(password)) score += 12.5;
+                if (/[^A-Za-z0-9]/.test(password)) score += 12.5;
+                return Math.min(score, 100);
+            }
+
+            function updatePasswordStrengthUI(strength) {
+                strengthBar.style.width = strength + '%';
+                strengthBar.className = 'progress-bar';
+                
+                if (strength < 25) {
+                    strengthBar.classList.add('bg-danger');
+                    strengthText.textContent = 'Very Weak';
+                    strengthText.className = 'text-danger small';
+                } else if (strength < 50) {
+                    strengthBar.classList.add('bg-warning');
+                    strengthText.textContent = 'Weak';
+                    strengthText.className = 'text-warning small';
+                } else if (strength < 75) {
+                    strengthBar.classList.add('bg-info');
+                    strengthText.textContent = 'Good';
+                    strengthText.className = 'text-info small';
+                } else {
+                    strengthBar.classList.add('bg-success');
+                    strengthText.textContent = 'Strong';
+                    strengthText.className = 'text-success small';
+                }
+            }
+
+            function validatePasswordConfirmation() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                
+                if (confirmPassword && password !== confirmPassword) {
+                    confirmPasswordError.textContent = 'Passwords do not match';
+                    confirmPasswordInput.classList.add('is-invalid');
+                } else {
+                    confirmPasswordError.textContent = '';
+                    confirmPasswordInput.classList.remove('is-invalid');
+                    if (confirmPassword && password === confirmPassword) {
+                        confirmPasswordInput.classList.add('is-valid');
+                    }
+                }
+            }
+
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                // Validate password confirmation
+                if (passwordInput.value !== confirmPasswordInput.value) {
+                    e.preventDefault();
+                    confirmPasswordError.textContent = 'Passwords do not match';
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.disabled = true;
+                submitSpinner.classList.remove('d-none');
+                
+                // Re-enable after 3 seconds (in case of errors)
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitSpinner.classList.add('d-none');
+                }, 3000);
+            });
+
+            // Input animations
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('input-group-focus');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('input-group-focus');
+                });
+            });
+        });
+    </script>
+}

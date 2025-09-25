@@ -1,0 +1,449 @@
+﻿@page
+@model FoodOrderingSystem.Pages.Cart.IndexModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<form style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="cart-container">
+    <!-- Cart Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="display-6 fw-bold text-dark mb-1">
+                <i class="fas fa-shopping-cart me-3 text-primary"></i>Your Cart
+            </h1>
+            <p class="text-muted mb-0">
+                @if (Model.Cart.Count > 0)
+                {
+                    <span>@Model.Cart.Count item@(Model.Cart.Count != 1 ? "s" : "") in your cart</span>
+                }
+                else
+                {
+                    <span>Your cart is currently empty</span>
+                }
+            </p>
+        </div>
+        
+        @if (Model.Cart.Count > 0)
+        {
+            <div>
+                <button class="btn btn-outline-danger btn-sm" onclick="clearCart()">
+                    <i class="fas fa-trash me-1"></i>Clear Cart
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (Model.Cart.Count == 0)
+    {
+        <!-- Empty Cart State -->
+        <div class="empty-cart-container text-center py-5">
+            <div class="empty-cart-icon mb-4">
+                <i class="fas fa-shopping-cart text-muted" style="font-size: 5rem; opacity: 0.3;"></i>
+            </div>
+            <h3 class="text-muted mb-3">Your cart is empty</h3>
+            <p class="text-muted mb-4">Looks like you haven't added any delicious items to your cart yet.</p>
+            <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                <a asp-page="/Menu/Index" class="btn btn-primary btn-lg px-4">
+                    <i class="fas fa-utensils me-2"></i>Browse Menu
+                </a>
+                <a asp-page="/Index" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <!-- Cart Items -->
+            <div class="col-lg-8">
+                <div class="cart-items-container">
+                    @foreach (var item in Model.Cart)
+                    {
+                        <div class="cart-item-card mb-3" data-item-id="@item.Id">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-4">
+                                    <div class="row align-items-center">
+                                        <!-- Food Image -->
+                                        <div class="col-md-2 col-3 mb-3 mb-md-0">
+                                            <div class="food-image-container" style="height: 80px; width: 80px; position: relative;">
+                                                @if (item.FoodItem != null && !string.IsNullOrEmpty(item.FoodItem.ImageUrl))
+                                                {
+                                                    <img src="@item.FoodItem.ImageUrl" 
+                                                         alt="@item.FoodName" 
+                                                         class="rounded"
+                                                         style="height: 100%; width: 100%; object-fit: cover;"
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                }
+                                                <div class="food-image-placeholder bg-light rounded d-flex align-items-center justify-content-center" 
+                                                     style="height: 100%; width: 100%; @(item.FoodItem != null && !string.IsNullOrEmpty(item.FoodItem.ImageUrl) ? "display: none; position: absolute; top: 0; left: 0;" : "")">
+                                                    <i class="fas fa-utensils text-muted"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Food Details -->
+                                        <div class="col-md-4 col-9 mb-3 mb-md-0">
+                                            <h5 class="fw-bold text-dark mb-1">@item.FoodName</h5>
+                                            <p class="text-muted small mb-1">
+                                                <i class="fas fa-tag me-1"></i>@(item.FoodItem?.Category ?? "Food Item")
+                                            </p>
+                                            <p class="text-success fw-semibold mb-0">$@item.Price.ToString("F2") each</p>
+                                        </div>
+
+                                        <!-- Quantity Controls -->
+                                        <div class="col-md-3 col-6 mb-3 mb-md-0">
+                                            <label class="form-label small text-muted fw-semibold">Quantity</label>
+                                            <div class="quantity-controls d-flex align-items-center">
+                                                <button class="btn btn-outline-secondary btn-sm quantity-btn" onclick="updateQuantity(@item.Id, -1)">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <span class="quantity-display mx-3 fw-bold" id="qty-@item.Id">@item.Quantity</span>
+                                                <button class="btn btn-outline-secondary btn-sm quantity-btn" onclick="updateQuantity(@item.Id, 1)">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Subtotal & Remove -->
+                                        <div class="col-md-3 col-6">
+                                            <div class="text-end">
+                                                <div class="subtotal-amount h5 fw-bold text-primary mb-2" id="subtotal-@item.Id">
+                                                    $@((item.Price * item.Quantity).ToString("F2"))
+                                                </div>
+                                                <button class="btn btn-outline-danger btn-sm" onclick="removeItem(@item.Id)">
+                                                    <i class="fas fa-trash me-1"></i>Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Continue Shopping -->
+                <div class="continue-shopping mt-4">
+                    <a asp-page="/Menu/Index" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order Summary Sidebar -->
+            <div class="col-lg-4">
+                <div class="order-summary-container">
+                    <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+                        <div class="card-header bg-primary text-white py-3">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-receipt me-2"></i>Order Summary
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Summary Items -->
+                            <div class="order-summary-items mb-3">
+                                @foreach (var item in Model.Cart)
+                                {
+                                    <div class="d-flex justify-content-between align-items-center mb-2 summary-item" id="summary-@item.Id">
+                                        <div>
+                                            <span class="fw-semibold">@item.FoodName</span>
+                                            <small class="text-muted d-block">@item.Quantity x $@item.Price.ToString("F2")</small>
+                                        </div>
+                                        <span class="fw-bold text-primary">$@((item.Price * item.Quantity).ToString("F2"))</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <hr class="my-3">
+
+                            <!-- Pricing Breakdown -->
+                            <div class="pricing-breakdown">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal</span>
+                                    <span id="cart-subtotal">$@Model.Total.ToString("F2")</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Delivery Fee</span>
+                                    <span class="text-success">FREE</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tax (10%)</span>
+                                    <span id="cart-tax">$@((Model.Total * 0.10m).ToString("F2"))</span>
+                                </div>
+                            </div>
+
+                            <hr class="my-3">
+
+            <!-- Total -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold text-dark mb-0">Total</h5>
+                <h4 class="fw-bold text-primary mb-0" id="cart-total">$@((Model.Total * 1.10m).ToString("F2"))</h4>
+            </div>                            <!-- Promo Code -->
+                            <div class="promo-code-section mb-4">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Promo code" id="promoCode">
+                                    <button class="btn btn-outline-secondary" onclick="applyPromo()">Apply</button>
+                                </div>
+                                <small class="text-muted mt-1 d-block">
+                                    <i class="fas fa-tag me-1"></i>Have a promo code? Enter it above
+                                </small>
+                            </div>
+
+                            <!-- Checkout Button -->
+                            <div class="d-grid">
+                                <a asp-page="/Admin/Orders/Checkout" class="btn btn-success btn-lg py-3" id="checkoutBtn">
+                                    <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+                                    <div class="checkout-loading d-none">
+                                        <span class="spinner-border spinner-border-sm me-2"></span>Processing...
+                                    </div>
+                                </a>
+                            </div>
+
+                            <!-- Security Note -->
+                            <div class="security-note text-center mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>Secure checkout with SSL encryption
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        // Cart management functions
+        let cartItems = @Html.Raw(Json.Serialize(Model.Cart));
+        const TAX_RATE = 0.10;
+
+        function updateQuantity(itemId, change) {
+            const item = cartItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            const newQuantity = item.quantity + change;
+            if (newQuantity <= 0) {
+                removeItem(itemId);
+                return;
+            }
+
+            // Make AJAX call to update quantity
+            const formData = new FormData();
+            formData.append('itemId', itemId);
+            formData.append('quantity', newQuantity);
+
+            fetch('/Cart?handler=UpdateQuantity', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    item.quantity = newQuantity;
+                    updateCartDisplay(itemId, item);
+                    updateOrderSummary();
+                } else {
+                    showToast('Failed to update quantity', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating quantity:', error);
+                showToast('Error updating quantity', 'error');
+            });
+        }
+
+        function removeItem(itemId) {
+            if (confirm('Are you sure you want to remove this item from your cart?')) {
+                const formData = new FormData();
+                formData.append('itemId', itemId);
+
+                fetch('/Cart?handler=RemoveItem', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        cartItems = cartItems.filter(i => i.id !== itemId);
+                        
+                        // Remove from DOM
+                        const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+                        if (itemElement) {
+                            itemElement.style.transform = 'translateX(-100%)';
+                            itemElement.style.opacity = '0';
+                            setTimeout(() => {
+                                itemElement.remove();
+                                if (cartItems.length === 0) {
+                                    location.reload(); // Show empty cart state
+                                }
+                            }, 300);
+                        }
+
+                        updateOrderSummary();
+                        showToast('Item removed from cart', 'success');
+                    } else {
+                        showToast('Failed to remove item', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error removing item:', error);
+                    showToast('Error removing item', 'error');
+                })
+                .catch(error => console.error('Error removing item:', error));
+            }
+        }
+
+        function clearCart() {
+            if (confirm('Are you sure you want to clear your entire cart?')) {
+                const formData = new FormData();
+
+                fetch('/Cart?handler=ClearCart', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                })
+                .catch(error => console.error('Error clearing cart:', error));
+            }
+        }
+
+        function updateCartDisplay(itemId, item) {
+            const qtyElement = document.getElementById(`qty-${itemId}`);
+            const subtotalElement = document.getElementById(`subtotal-${itemId}`);
+            
+            if (qtyElement) qtyElement.textContent = item.quantity;
+            if (subtotalElement) {
+                const subtotal = (item.price * item.quantity).toFixed(2);
+                subtotalElement.textContent = `$${subtotal}`;
+            }
+        }
+
+        function updateOrderSummary() {
+            const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * TAX_RATE;
+            const total = subtotal + tax;
+
+            document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cart-tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
+
+            // Update summary items
+            cartItems.forEach(item => {
+                const summaryElement = document.getElementById(`summary-${item.id}`);
+                if (summaryElement) {
+                    const itemTotal = (item.price * item.quantity).toFixed(2);
+                    summaryElement.innerHTML = `
+                        <div>
+                            <span class="fw-semibold">${item.foodName}</span>
+                            <small class="text-muted d-block">${item.quantity} x $${item.price.toFixed(2)}</small>
+                        </div>
+                        <span class="fw-bold text-primary">$${itemTotal}</span>
+                    `;
+                }
+            });
+        }
+
+        function applyPromo() {
+            const promoCode = document.getElementById('promoCode').value.trim();
+            if (!promoCode) {
+                showToast('Please enter a promo code', 'warning');
+                return;
+            }
+
+            // Demo promo codes
+            const promoCodes = {
+                'SAVE10': { discount: 0.1, message: '10% discount applied!' },
+                'WELCOME': { discount: 0.15, message: '15% welcome discount applied!' },
+                'FREEDELIVERY': { discount: 0, message: 'Free delivery already included!' }
+            };
+
+            const promo = promoCodes[promoCode.toUpperCase()];
+            if (promo) {
+                showToast(promo.message, 'success');
+                // You can implement actual discount logic here
+            } else {
+                showToast('Invalid promo code', 'error');
+            }
+        }
+
+
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const bgColor = {
+                'success': 'bg-success',
+                'error': 'bg-danger',
+                'warning': 'bg-warning',
+                'info': 'bg-info'
+            }[type] || 'bg-info';
+
+            toast.className = `toast align-items-center text-white ${bgColor} border-0 position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 1050;';
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-check-circle me-2"></i>${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            toast.addEventListener('hidden.bs.toast', () => {
+                document.body.removeChild(toast);
+            });
+        }
+
+        // Checkout button animation
+        document.getElementById('checkoutBtn')?.addEventListener('click', function(e) {
+            const loadingEl = this.querySelector('.checkout-loading');
+            const iconEl = this.querySelector('.fas');
+            
+            if (loadingEl && iconEl) {
+                iconEl.style.display = 'none';
+                loadingEl.classList.remove('d-none');
+            }
+        });
+
+        // Quantity button hover effects
+        document.querySelectorAll('.quantity-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Cart item animations
+        document.querySelectorAll('.cart-item-card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('animate-fadeInUp');
+        });
+    </script>
+}

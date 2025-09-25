@@ -1,0 +1,23 @@
+﻿@page "{id:int}"
+@model FoodOrderingSystem.Pages.Admin.Orders.DetailsModel
+<h2>Order Details</h2>
+@if (Model.Order != null)
+{
+    <p>Order ID: @Model.Order.Id</p>
+    <p>Customer: @Model.Order.Customer.Username</p>
+    <p>Date: @Model.Order.OrderDate</p>
+    <p>Total: @Model.Order.TotalAmount</p>
+    <p>Status: @Model.Order.Status</p>
+    <p>Payment: @Model.Order.PaymentStatus</p>
+    <h4>Items:</h4>
+    <ul>
+        @foreach (var item in Model.Order.OrderItems)
+        {
+            <li>@item.FoodItem.Name x @item.Quantity (@item.Price * @item.Quantity)</li>
+        }
+    </ul>
+}
+else
+{
+    <p>Order not found.</p>
+}

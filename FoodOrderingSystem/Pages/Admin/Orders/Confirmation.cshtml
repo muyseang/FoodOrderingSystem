@@ -1,0 +1,235 @@
+﻿@page "{id:int}"
+@model FoodOrderingSystem.Pages.Admin.Orders.ConfirmationModel
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (Model.Order != null)
+            {
+                <!-- Success Animation -->
+                <div class="text-center mb-4">
+                    <div class="success-checkmark">
+                        <div class="check-icon">
+                            <span class="icon-line line-tip"></span>
+                            <span class="icon-line line-long"></span>
+                            <div class="icon-circle"></div>
+                            <div class="icon-fix"></div>
+                        </div>
+                    </div>
+                    <h1 class="text-success fw-bold mt-3">Order Confirmed!</h1>
+                    <p class="text-muted">Thank you for your order. We'll prepare it right away!</p>
+                </div>
+
+                <!-- Order Details Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0"><i class="fas fa-receipt me-2"></i>Order Details</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-muted">Order ID</h6>
+                                <p class="h5 text-primary">#@Model.Order.Id.ToString().PadLeft(6, '0')</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-muted">Order Date</h6>
+                                <p class="h6">@Model.Order.OrderDate.ToString("MMMM dd, yyyy 'at' hh:mm tt")</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-muted">Status</h6>
+                                <span class="badge bg-warning text-dark px-3 py-2">
+                                    <i class="fas fa-clock me-1"></i>@Model.Order.Status
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-muted">Payment Status</h6>
+                                <span class="badge bg-success px-3 py-2">
+                                    <i class="fas fa-check me-1"></i>@Model.Order.PaymentStatus
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Order Items</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-end">Unit Price</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Order.OrderItems)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-utensils text-muted me-2"></i>
+                                                    <strong>@(item.FoodItem?.Name ?? "Unknown Item")</strong>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-dark">@item.Quantity</span>
+                                            </td>
+                                            <td class="text-end">$@item.Price.ToString("F2")</td>
+                                            <td class="text-end fw-bold">$@((item.Price * item.Quantity).ToString("F2"))</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="row">
+                            <div class="col-md-8 offset-md-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>$@((Model.Order.TotalAmount / 1.10m).ToString("F2"))</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tax (10%):</span>
+                                    <span>$@((Model.Order.TotalAmount - (Model.Order.TotalAmount / 1.10m)).ToString("F2"))</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Delivery Fee:</span>
+                                    <span class="text-success">FREE</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <strong>Total:</strong>
+                                    <strong class="text-primary h5">$@Model.Order.TotalAmount.ToString("F2")</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="text-center">
+                    <a asp-page="/Menu/Index" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-utensils me-2"></i>Order More Food
+                    </a>
+                    <a asp-page="/Cart/Index" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-shopping-cart me-2"></i>View Cart
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="text-center">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Order Not Found</strong>
+                        <p class="mb-0">The order you're looking for could not be found.</p>
+                    </div>
+                    <a asp-page="/Menu/Index" class="btn btn-primary">
+                        <i class="fas fa-utensils me-2"></i>Browse Menu
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .success-checkmark {
+        width: 80px;
+        height: 115px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .success-checkmark .check-icon {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        border-radius: 50%;
+        box-sizing: content-box;
+        border: 4px solid #28a745;
+        background-color: #28a745;
+        animation: checkmark-fill 0.4s ease-in-out 0.4s forwards, checkmark-scale 0.3s ease-in-out 0.9s both;
+    }
+
+    .success-checkmark .check-icon::after {
+        content: '';
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: #28a745;
+        position: absolute;
+        top: -3px;
+        right: -3px;
+        animation: checkmark-bounce 0.3s ease-in-out 1.2s both;
+    }
+
+    .success-checkmark .icon-line {
+        height: 5px;
+        background-color: white;
+        display: block;
+        border-radius: 2px;
+        position: absolute;
+        z-index: 10;
+    }
+
+    .success-checkmark .icon-line.line-tip {
+        top: 46px;
+        left: 14px;
+        width: 25px;
+        transform: rotate(45deg);
+        animation: checkmark-icon-line-tip 0.75s;
+    }
+
+    .success-checkmark .icon-line.line-long {
+        top: 38px;
+        right: 8px;
+        width: 47px;
+        transform: rotate(-45deg);
+        animation: checkmark-icon-line-long 0.75s;
+    }
+
+    @@keyframes checkmark-fill {
+        100% { box-shadow: inset 0px 0px 0px 30px #28a745; }
+    }
+
+    @@keyframes checkmark-scale {
+        0%, 100% { transform: none; }
+        50% { transform: scale3d(1.1, 1.1, 1); }
+    }
+
+    @@keyframes checkmark-bounce {
+        0%, 20%, 53%, 80%, 100% { animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000); transform: translate3d(0, 0, 0); }
+        40%, 43% { animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060); transform: translate3d(0, -30px, 0); }
+        70% { animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060); transform: translate3d(0, -15px, 0); }
+        90% { transform: translate3d(0, -4px, 0); }
+    }
+
+    @@keyframes checkmark-icon-line-tip {
+        0% { width: 0; left: 1px; top: 19px; }
+        54% { width: 0; left: 1px; top: 19px; }
+        70% { width: 50px; left: -8px; top: 37px; }
+        84% { width: 17px; left: 21px; top: 48px; }
+        100% { width: 25px; left: 14px; top: 45px; }
+    }
+
+    @@keyframes checkmark-icon-line-long {
+        0% { width: 0; right: 46px; top: 54px; }
+        65% { width: 0; right: 46px; top: 54px; }
+        84% { width: 55px; right: 0px; top: 35px; }
+        100% { width: 47px; right: 8px; top: 38px; }
+    }
+</style>

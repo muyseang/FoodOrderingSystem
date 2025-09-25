@@ -1,0 +1,432 @@
+﻿@page
+@model FoodOrderingSystem.Pages.Admin.Orders.CheckoutModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0"><i class="fas fa-credit-card me-2"></i>Checkout</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Order Summary -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-3">Order Summary</h5>
+                        <div class="border rounded p-3 bg-light">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>$@Model.Subtotal.ToString("F2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tax (10%):</span>
+                                <span>$@Model.Tax.ToString("F2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Delivery Fee:</span>
+                                <span class="text-success">FREE</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <strong>Total:</strong>
+                                <strong class="text-primary">$@Model.Total.ToString("F2")</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demo Payment Options -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-credit-card me-2"></i>Payment Method (Demo)</h5>
+                        <div class="row g-3">
+                            <!-- Demo Credit Cards -->
+                            <div class="col-md-6">
+                                <div class="card demo-card h-100" onclick="selectDemoCard('visa')">
+                                    <div class="card-body text-center">
+                                        <i class="fab fa-cc-visa fa-3x text-primary mb-2"></i>
+                                        <h6>Demo Visa</h6>
+                                        <small class="text-muted">**** **** **** 4242</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card demo-card h-100" onclick="selectDemoCard('mastercard')">
+                                    <div class="card-body text-center">
+                                        <i class="fab fa-cc-mastercard fa-3x text-warning mb-2"></i>
+                                        <h6>Demo MasterCard</h6>
+                                        <small class="text-muted">**** **** **** 5555</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <div class="card demo-card h-100" onclick="selectDemoCard('aba')">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-university fa-3x text-danger mb-2"></i>
+                                        <h6>ABA Bank Cambodia</h6>
+                                        <small class="text-muted">Mobile Banking</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card demo-card h-100" onclick="selectDemoCard('paypal')">
+                                    <div class="card-body text-center">
+                                        <i class="fab fa-paypal fa-3x text-primary mb-2"></i>
+                                        <h6>Demo PayPal</h6>
+                                        <small class="text-muted">demo@paypal.com</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <form method="post" id="checkoutForm">
+                        <input type="hidden" asp-for="PaymentInfo" id="paymentInfoHidden" />
+                        
+                        <!-- Selected Payment Method Display -->
+                        <div id="selectedPaymentMethod" class="mb-3 d-none">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Selected Payment Method:</strong> <span id="selectedMethodText"></span>
+                            </div>
+                        </div>
+
+                        <!-- Demo Card Details Form -->
+                        <div id="cardDetailsForm" class="mb-4 d-none">
+                            <h6 class="fw-bold mb-3">Card Details (Demo - Any Values Work)</h6>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Cardholder Name</label>
+                                    <input type="text" class="form-control" id="cardholderName" placeholder="John Doe" value="Demo User">
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label">Card Number</label>
+                                    <input type="text" class="form-control" id="cardNumber" placeholder="**** **** **** ****" maxlength="19">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">CVV</label>
+                                    <input type="text" class="form-control" id="cvv" placeholder="123" maxlength="4" value="123">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Expiry Month</label>
+                                    <select class="form-select" id="expiryMonth">
+                                        <option value="12">12 - December</option>
+                                        <option value="01">01 - January</option>
+                                        <option value="02">02 - February</option>
+                                        <option value="03">03 - March</option>
+                                        <option value="04">04 - April</option>
+                                        <option value="05">05 - May</option>
+                                        <option value="06">06 - June</option>
+                                        <option value="07">07 - July</option>
+                                        <option value="08">08 - August</option>
+                                        <option value="09">09 - September</option>
+                                        <option value="10">10 - October</option>
+                                        <option value="11">11 - November</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Expiry Year</label>
+                                    <select class="form-select" id="expiryYear">
+                                        <option value="2025">2025</option>
+                                        <option value="2026">2026</option>
+                                        <option value="2027">2027</option>
+                                        <option value="2028">2028</option>
+                                        <option value="2029">2029</option>
+                                        <option value="2030">2030</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+        <!-- PayPal Demo Form -->
+        <div id="paypalForm" class="mb-4 d-none">
+            <h6 class="fw-bold mb-3">PayPal Login (Demo)</h6>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="paypalEmail" placeholder="demo@example.com" value="demo@paypal.com">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="paypalPassword" placeholder="Password" value="demo123">
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA Bank Demo Form -->
+        <div id="abaForm" class="mb-4 d-none">
+            <h6 class="fw-bold mb-3">ABA Mobile Banking (Demo)</h6>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Phone Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text">+855</span>
+                        <input type="tel" class="form-control" id="abaPhone" placeholder="12 345 678" value="12345678" maxlength="8">
+                    </div>
+                    <div class="form-text">Enter your ABA Mobile Banking phone number</div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">PIN Code</label>
+                    <input type="password" class="form-control" id="abaPin" placeholder="Enter 6-digit PIN" value="123456" maxlength="6">
+                    <div class="form-text">Demo PIN: 123456</div>
+                </div>
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-mobile-alt me-2"></i>
+                        <strong>Demo ABA Mobile Banking</strong><br>
+                        This simulates ABA Bank's mobile payment system used widely in Cambodia.
+                    </div>
+                </div>
+            </div>
+        </div>                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg" id="processPaymentBtn" disabled>
+                                <span id="btnIcon"><i class="fas fa-lock me-2"></i></span>
+                                <span id="btnText">Select Payment Method</span>
+                            </button>
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                This is a demo checkout. No real payment will be processed.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .demo-card {
+        border: 2px solid #e9ecef;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #fff;
+    }
+    
+    .demo-card:hover {
+        border-color: #007bff;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .demo-card.selected {
+        border-color: #28a745;
+        background-color: #f8fff9;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    }
+    
+    .demo-card.selected .card-body {
+        position: relative;
+    }
+    
+    .demo-card.selected .card-body::after {
+        content: '✓';
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: #28a745;
+        color: white;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    
+    .payment-processing {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .payment-processing::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        animation: processing 1.5s infinite;
+    }
+    
+    @@keyframes processing {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    let selectedPaymentMethod = null;
+    
+    function selectDemoCard(method) {
+        // Remove previous selection
+        document.querySelectorAll('.demo-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        // Select current card
+        event.currentTarget.classList.add('selected');
+        selectedPaymentMethod = method;
+        
+        // Update hidden field
+        const paymentInfo = document.getElementById('paymentInfoHidden');
+        const selectedMethodDiv = document.getElementById('selectedPaymentMethod');
+        const selectedMethodText = document.getElementById('selectedMethodText');
+        const processBtn = document.getElementById('processPaymentBtn');
+        const btnText = document.getElementById('btnText');
+        const cardForm = document.getElementById('cardDetailsForm');
+        const paypalForm = document.getElementById('paypalForm');
+        const abaForm = document.getElementById('abaForm');
+        
+        // Hide all forms first
+        cardForm.classList.add('d-none');
+        paypalForm.classList.add('d-none');
+        abaForm.classList.add('d-none');
+        
+        let methodName = '';
+        let cardNumber = '';
+        
+        switch(method) {
+            case 'visa':
+                methodName = 'Demo Visa Card';
+                cardNumber = '4242 4242 4242 4242';
+                document.getElementById('cardNumber').value = cardNumber;
+                cardForm.classList.remove('d-none');
+                cardForm.classList.add('fade-in');
+                break;
+            case 'mastercard':
+                methodName = 'Demo MasterCard';
+                cardNumber = '5555 5555 5555 4444';
+                document.getElementById('cardNumber').value = cardNumber;
+                cardForm.classList.remove('d-none');
+                cardForm.classList.add('fade-in');
+                break;
+            case 'aba':
+                methodName = 'ABA Bank Cambodia';
+                abaForm.classList.remove('d-none');
+                abaForm.classList.add('fade-in');
+                break;
+            case 'paypal':
+                methodName = 'Demo PayPal';
+                paypalForm.classList.remove('d-none');
+                paypalForm.classList.add('fade-in');
+                break;
+        }
+        
+        paymentInfo.value = methodName;
+        selectedMethodText.textContent = methodName;
+        selectedMethodDiv.classList.remove('d-none');
+        selectedMethodDiv.classList.add('fade-in');
+        
+        processBtn.disabled = false;
+        btnText.textContent = `Process Payment ($${document.querySelector('[asp-for="Total"]')?.textContent || '@Model.Total.ToString("F2")'})`;
+    }
+    
+    // Form submission with demo payment processing
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!selectedPaymentMethod) {
+            alert('Please select a payment method');
+            return;
+        }
+        
+        const processBtn = document.getElementById('processPaymentBtn');
+        const btnText = document.getElementById('btnText');
+        const btnIcon = document.getElementById('btnIcon');
+        
+        // Start processing animation
+        processBtn.disabled = true;
+        processBtn.classList.add('payment-processing');
+        btnIcon.innerHTML = '<div class="spinner-border spinner-border-sm me-2" role="status"></div>';
+        btnText.textContent = 'Processing Payment...';
+        
+        // Simulate payment processing
+        setTimeout(() => {
+            btnText.textContent = 'Authorizing...';
+        }, 1000);
+        
+        setTimeout(() => {
+            btnText.textContent = 'Completing Order...';
+        }, 2000);
+        
+        setTimeout(() => {
+            // Show success message briefly
+            processBtn.classList.remove('payment-processing');
+            processBtn.classList.remove('btn-success');
+            processBtn.classList.add('btn-primary');
+            btnIcon.innerHTML = '<i class="fas fa-check me-2"></i>';
+            btnText.textContent = 'Payment Successful!';
+            
+            // Submit the form after animation
+            setTimeout(() => {
+                this.submit();
+            }, 500);
+        }, 3000);
+    });
+    
+    // Format card number input
+    document.getElementById('cardNumber')?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        e.target.value = value;
+    });
+    
+    // Only allow numbers for CVV
+    document.getElementById('cvv')?.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+    
+    // Format ABA phone number (Cambodia format)
+    document.getElementById('abaPhone')?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 8) {
+            // Format as XX XXX XXX
+            if (value.length > 2 && value.length <= 5) {
+                value = value.slice(0, 2) + ' ' + value.slice(2);
+            } else if (value.length > 5) {
+                value = value.slice(0, 2) + ' ' + value.slice(2, 5) + ' ' + value.slice(5);
+            }
+        }
+        e.target.value = value;
+    });
+    
+    // Only allow numbers for ABA PIN
+    document.getElementById('abaPin')?.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+    
+    // Demo card hover effects
+    document.querySelectorAll('.demo-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            if (!this.classList.contains('selected')) {
+                this.style.transform = 'translateY(-5px)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('selected')) {
+                this.style.transform = 'translateY(0)';
+            }
+        });
+    });
+</script>

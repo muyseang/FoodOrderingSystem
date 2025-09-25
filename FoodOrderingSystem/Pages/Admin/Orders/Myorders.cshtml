@@ -1,0 +1,24 @@
+﻿@page
+@model FoodOrderingSystem.Pages.Admin.Orders.MyordersModel
+<h2>My Orders</h2>
+@if (Model.Orders.Count == 0)
+{
+    <p>You have no orders.</p>
+}
+else
+{
+    <ul>
+        @foreach (var order in Model.Orders)
+        {
+            <li>
+                Order #@order.Id - Total: @order.TotalAmount - Status: @order.Status
+                <ul>
+                    @foreach (var item in order.OrderItems)
+                    {
+                        <li>@item.FoodItem.Name x @item.Quantity</li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
+}

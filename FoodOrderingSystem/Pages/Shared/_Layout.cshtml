@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FoodOrderingSystem</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/FoodOrderingSystem.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    
+    <style>
+        .user-avatar {
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-toggle:after {
+            margin-left: 0.5em;
+        }
+        
+        .dropdown-menu {
+            margin-top: 8px !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
+        }
+        
+        .dropdown-item {
+            border-radius: 8px;
+            margin: 2px 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(4px);
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background-color: #fff5f5;
+            color: #dc3545 !important;
+        }
+        
+        .navbar-nav .nav-link {
+            transition: all 0.2s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-page="/Index">CamboFoodOrder</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Menu/Index">Menu</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Cart/Index">Cart</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        @{
+                            var isLoggedIn = !string.IsNullOrEmpty(Context.Session.GetString("UserId"));
+                            var username = Context.Session.GetString("Username");
+                            var userRole = Context.Session.GetString("Role");
+                        }
+                        
+                        @if (isLoggedIn)
+                        {
+                            <!-- User Profile Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="user-avatar bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <span class="fw-medium">@username</span>
+                                    @if (userRole == "Admin")
+                                    {
+                                        <span class="badge bg-danger ms-2 small">Admin</span>
+                                    }
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px; min-width: 220px;">
+                                    <li>
+                                        <h6 class="dropdown-header d-flex align-items-center">
+                                            <i class="fas fa-user-circle me-2 text-primary"></i>
+                                            @username
+                                        </h6>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center py-2" asp-page="/Account/Profile">
+                                            <i class="fas fa-user-edit me-3 text-info"></i>
+                                            <div>
+                                                <div class="fw-medium">My Profile</div>
+                                                <small class="text-muted">Manage account settings</small>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    @if (userRole == "Admin")
+                                    {
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center py-2" asp-page="/Admin/FoodItems/Index">
+                                                <i class="fas fa-cogs me-3 text-warning"></i>
+                                                <div>
+                                                    <div class="fw-medium">Admin Panel</div>
+                                                    <small class="text-muted">Manage food items</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    }
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center py-2" asp-page="/Cart/Index">
+                                            <i class="fas fa-shopping-cart me-3 text-success"></i>
+                                            <div>
+                                                <div class="fw-medium">My Cart</div>
+                                                <small class="text-muted">View shopping cart</small>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" asp-page="/Account/SignOut">
+                                            <i class="fas fa-sign-out-alt me-3"></i>
+                                            <div>
+                                                <div class="fw-medium">Sign Out</div>
+                                                <small class="text-muted">Log out of account</small>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Login/Register Links for non-authenticated users -->
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Account/Login">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Account/Register">
+                                    <i class="fas fa-user-plus me-1"></i>Register
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - FoodOrderingSystem - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
